@@ -660,7 +660,7 @@ El sistema debe poder ejecutarse completo (base de datos, backend y frontend) de
 ### Consecuencias (trade-offs y riesgos)
 
 - **Riesgo — evolución del esquema:** si el volumen de MySQL ya existía, las columnas o índices nuevos no se aplican solos. Se documentó en el README el comando `ALTER TABLE` / `CREATE INDEX` correspondiente. En un entorno productivo se recomienda adoptar migraciones versionadas (Flyway con driver JDBC solo para migrar).
-- Credenciales de base de datos de desarrollo (`root/root`) en la configuración; en producción deben venir de variables de entorno o un gestor de secretos.
+- Credenciales de los contenedores locales de desarrollo en la configuración: MySQL (`root/root`) y RabbitMQ (`guest/guest`). No dan acceso a ningún sistema real; en producción deben venir de variables de entorno o un gestor de secretos.
 
 ### Validación
 
