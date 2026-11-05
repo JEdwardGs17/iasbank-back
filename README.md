@@ -2,7 +2,7 @@
 
 Backend reactivo para procesamiento de transferencias construido con **Spring Boot WebFlux** y **R2DBC**.
 
-La interfaz web está documentada en el [README del frontend](../IASBankFront/README.md).
+La interfaz web está en el repositorio [iasbank-front](https://github.com/JEdwardGs17/iasbank-front).
 
 ## Stack Tecnológico
 
@@ -226,8 +226,8 @@ Cada inicio de la aplicación es un **día limpio**, como asume el enunciado: se
 
 | Herramienta | Versión |
 |-------------|---------|
-| JDK | 17 o 21 (Gradle 8.7 no es compatible con versiones más nuevas) |
-| Docker | Para MySQL y RabbitMQ |
+| JDK | 17 o 21 (Gradle 8.7 no es compatible con versiones más nuevas). Solo para la opción 1 |
+| Docker | Con Docker Compose |
 
 No hace falta instalar Gradle: el proyecto incluye el *wrapper* (`./gradlew`).
 
@@ -266,13 +266,15 @@ Debe responder las cuentas `CTA-1001`, `CTA-1002` y `CTA-2001`.
 
 **Detener:** `Ctrl + C` para el backend y `docker rm -f ias_bank_mysql ias_bank_rabbitmq` para los contenedores.
 
-### Opción 2: aplicación completa con Docker Compose
-
-Desde la carpeta que contiene `IASBank`, `IASBankFront` y `docker-compose.yml`:
+### Opción 2: aplicación completa con Docker Compose (un solo comando)
 
 ```bash
+git clone https://github.com/JEdwardGs17/iasbank-back.git
+cd iasbank-back
 docker compose up --build -d
 ```
+
+Levanta MySQL, RabbitMQ, el backend y el frontend. No hace falta clonar el frontend: se construye directamente desde su repositorio ([iasbank-front](https://github.com/JEdwardGs17/iasbank-front)). La primera vez tarda unos minutos, porque descarga las imágenes y compila los dos proyectos.
 
 | Servicio | Dirección | Credenciales |
 |----------|-----------|--------------|
@@ -285,6 +287,12 @@ docker compose up --build -d
 En este modo el backend corre con la zona horaria de Colombia (`TZ=America/Bogota`).
 
 **Detener:** `docker compose down`. Los datos de MySQL se conservan en el volumen `ias_bank_data`; `docker compose down -v` también los borra.
+
+Para construir el frontend desde una copia local, por ejemplo con cambios que aún no están en GitHub:
+
+```bash
+FRONTEND_PATH=../iasbank-front docker compose up --build -d
+```
 
 > Si el volumen de MySQL fue creado antes de RF03/RF04/RF06, aplicar los cambios de esquema:
 > `docker exec ias_bank_mysql mysql -uroot -proot ias_bank -e "ALTER TABLE transfers ADD COLUMN rejection_reason VARCHAR(30) NULL AFTER status; CREATE INDEX idx_transfers_daily_total ON transfers (source_account_id, status, processed_at); CREATE INDEX idx_transfers_recent ON transfers (processed_at)"`

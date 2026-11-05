@@ -146,7 +146,7 @@ La interfaz permite registrar una nueva solicitud de transferencia, visualizar c
 | Consultar por referencia | Búsqueda en la misma pantalla *Transferencias*: el resultado se muestra en la tabla |
 | Ver toda la información de una transferencia | Botón *Ver detalle* en cada fila, que consulta la transferencia por su referencia |
 
-Adicionalmente (no exigido): menú lateral, modo claro y oscuro, alertas para cada acción, diseño adaptable a móviles y administración de cuentas. Detalle en el [README del frontend](../../../IASBankFront/README.md).
+Adicionalmente (no exigido): menú lateral, modo claro y oscuro, alertas para cada acción, diseño adaptable a móviles y administración de cuentas. Detalle en el [README del frontend](https://github.com/JEdwardGs17/iasbank-front#readme).
 
 ### Límite diario configurable
 

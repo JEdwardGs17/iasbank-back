@@ -142,7 +142,7 @@ Toda prueba falla también si el navegador registra un error de consola que la p
 | | La hora de publicación se evalúa en cada ejecución del scheduler | `EventUseCaseImplTest` › *takesTheCurrentTimeOnEverySubscriptionOfTheSameMono* |
 | | Una ejecución fallida no detiene las siguientes | `EventPublicationSchedulerTest` |
 | | Vista de administración: resumen, filtro por estado | `event-page.component.spec`, `event.service.spec`, E2E |
-| **RF07** Interfaz Angular | Registrar, ver el resultado, consultar, buscar y ver el detalle desde el navegador | E2E (`IASBankFront/e2e/*.spec.ts`) |
+| **RF07** Interfaz Angular | Registrar, ver el resultado, consultar, buscar y ver el detalle desde el navegador | E2E (`e2e/*.spec.ts` de iasbank-front) |
 | | El monto muestra puntos de miles y millones mientras se escribe, y al backend llega el número sin puntos | `amount-input.directive.spec`, E2E |
 
 ## Verificación de las propias pruebas
@@ -172,10 +172,10 @@ npm test
 **E2E** con Playwright Test (requiere la aplicación corriendo con Docker y Google Chrome instalado):
 
 ```bash
-docker compose up -d          # desde PlataformaBancaria
-cd IASBankFront
+docker compose up --build -d  # desde iasbank-back
+cd iasbank-front
 npm run e2e                   # todas
 npm run e2e:report            # reporte HTML de la última ejecución
 ```
 
-Cómo están organizadas y cómo manejan los datos: [README del frontend](../../IASBankFront/README.md#pruebas).
+Cómo están organizadas y cómo manejan los datos: [README del frontend](https://github.com/JEdwardGs17/iasbank-front#pruebas).

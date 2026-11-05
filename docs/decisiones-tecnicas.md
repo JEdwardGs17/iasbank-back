@@ -567,7 +567,7 @@ RF07 pide una interfaz funcional que permita registrar transferencias, visualiza
 
 ### Referencias
 
-- [README del frontend](../../IASBankFront/README.md)
+- [README del frontend](https://github.com/JEdwardGs17/iasbank-front#readme)
 
 ---
 
@@ -648,6 +648,7 @@ El sistema debe poder ejecutarse completo (base de datos, backend y frontend) de
 ### Decisión
 
 - `docker compose up --build -d` levanta MySQL 8 (puerto 3309), RabbitMQ 3.13 con consola de administración (5672 / 15672), backend (8080) y frontend en nginx (4200). Nginx sirve la aplicación y actúa como *proxy* de `/api` hacia el backend, evitando problemas de CORS.
+- El `docker-compose.yml` vive en el repositorio del backend y construye el frontend directamente desde su repositorio de GitHub, así que basta clonar el backend y ejecutar un comando. La variable `FRONTEND_PATH` permite usar una copia local del frontend.
 - El esquema se crea con `schema.sql` al iniciar el backend.
 - El backend corre con la zona horaria de Colombia (`TZ=America/Bogota`). Toda fecha de la aplicación (procesamiento de transferencias, eventos y el día del límite diario) la toma el backend, así que con esto quedan en hora de Colombia. MySQL guarda la fecha tal como la envía el backend.
 
@@ -668,7 +669,7 @@ El sistema debe poder ejecutarse completo (base de datos, backend y frontend) de
 
 ### Referencias
 
-- [`docker-compose.yml`](../../docker-compose.yml), [`schema.sql`](../src/main/resources/schema.sql), [`nginx.conf`](../../IASBankFront/nginx.conf)
+- [`docker-compose.yml`](../docker-compose.yml), [`schema.sql`](../src/main/resources/schema.sql), [`nginx.conf`](https://github.com/JEdwardGs17/iasbank-front/blob/master/nginx.conf)
 
 ---
 
