@@ -220,27 +220,88 @@ Cada inicio de la aplicación es un **día limpio**, como asume el enunciado: se
 - `idx_transfers_recent (processed_at)`: consulta paginada de transferencias recientes.
 | processed_at           | DATETIME(6)    | NOT NULL           |
 
-## Ejecución
+## Cómo levantar el backend
 
-### Con Docker (recomendado)
+### Requisitos
+
+| Herramienta | Versión |
+|-------------|---------|
+| JDK | 17 o 21 (Gradle 8.7 no es compatible con versiones más nuevas) |
+| Docker | Para MySQL y RabbitMQ |
+
+No hace falta instalar Gradle: el proyecto incluye el *wrapper* (`./gradlew`).
+
+### Opción 1: backend con Gradle, MySQL y RabbitMQ en Docker
+
+**1. Levantar MySQL y RabbitMQ**
 
 ```bash
-cd PlataformaBancaria
-docker compose up --build -d
+docker run -d --name ias_bank_mysql -p 3309:3306 \
+  -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=ias_bank \
+  mysql:8.0 --default-authentication-plugin=mysql_native_password
+
+docker run -d --name ias_bank_rabbitmq -p 5672:5672 -p 15672:15672 \
+  rabbitmq:3.13-management
 ```
 
-Backend disponible en `http://localhost:8080`.
+El parámetro `--default-authentication-plugin=mysql_native_password` es necesario: sin él, MySQL 8 rechaza la conexión del backend.
 
-> Si el volumen de MySQL fue creado antes de RF03/RF04/RF06, aplicar los cambios de esquema:
-> `docker exec ias_bank_mysql mysql -uroot -proot ias_bank -e "ALTER TABLE transfers ADD COLUMN rejection_reason VARCHAR(30) NULL AFTER status; CREATE INDEX idx_transfers_daily_total ON transfers (source_account_id, status, processed_at); CREATE INDEX idx_transfers_recent ON transfers (processed_at)"`
+La primera vez, MySQL tarda unos 20 segundos en crear la base de datos. Si el backend arranca antes, falla con un error de conexión; basta con volver a ejecutarlo.
 
-### Desarrollo local
-
-Requiere MySQL en puerto 3309 con base de datos `ias_bank`.
+**2. Arrancar el backend**
 
 ```bash
 ./gradlew bootRun
 ```
+
+Al iniciar, el backend crea las tablas que no existan, deja el día limpio (sin transferencias) y carga las cuentas semilla.
+
+**3. Verificar**
+
+```bash
+curl http://localhost:8080/api/accounts
+```
+
+Debe responder las cuentas `CTA-1001`, `CTA-1002` y `CTA-2001`.
+
+**Detener:** `Ctrl + C` para el backend y `docker rm -f ias_bank_mysql ias_bank_rabbitmq` para los contenedores.
+
+### Opción 2: aplicación completa con Docker Compose
+
+Desde la carpeta que contiene `IASBank`, `IASBankFront` y `docker-compose.yml`:
+
+```bash
+docker compose up --build -d
+```
+
+| Servicio | Dirección | Credenciales |
+|----------|-----------|--------------|
+| Frontend | http://localhost:4200 | — |
+| Backend (API) | http://localhost:8080/api | — |
+| MySQL | `localhost:3309`, base `ias_bank` | `root` / `root` |
+| RabbitMQ | `localhost:5672` | `guest` / `guest` |
+| Consola de RabbitMQ | http://localhost:15672 | `guest` / `guest` |
+
+En este modo el backend corre con la zona horaria de Colombia (`TZ=America/Bogota`).
+
+**Detener:** `docker compose down`. Los datos de MySQL se conservan en el volumen `ias_bank_data`; `docker compose down -v` también los borra.
+
+> Si el volumen de MySQL fue creado antes de RF03/RF04/RF06, aplicar los cambios de esquema:
+> `docker exec ias_bank_mysql mysql -uroot -proot ias_bank -e "ALTER TABLE transfers ADD COLUMN rejection_reason VARCHAR(30) NULL AFTER status; CREATE INDEX idx_transfers_daily_total ON transfers (source_account_id, status, processed_at); CREATE INDEX idx_transfers_recent ON transfers (processed_at)"`
+
+### Configuración
+
+Los valores por defecto sirven para las dos opciones. Se pueden cambiar con variables de entorno:
+
+| Variable | Por defecto | Uso |
+|----------|-------------|-----|
+| `DB_HOST` / `DB_PORT` | `localhost` / `3309` | Servidor MySQL |
+| `RABBITMQ_HOST` / `RABBITMQ_PORT` | `localhost` / `5672` | Servidor RabbitMQ |
+| `RABBITMQ_USERNAME` / `RABBITMQ_PASSWORD` | `guest` / `guest` | Usuario de RabbitMQ |
+| `SERVER_PORT` | `8080` | Puerto de la API |
+| `TZ` | Zona del sistema | Zona horaria de las fechas y del corte del límite diario |
+
+Ejemplo: `DB_PORT=3310 SERVER_PORT=8081 ./gradlew bootRun`.
 
 ## Eventos en RabbitMQ (punto opcional)
 
