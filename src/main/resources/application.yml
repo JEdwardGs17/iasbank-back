@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: IASBank
+
+  r2dbc:
+    url: r2dbc:mysql://${DB_HOST:localhost}:${DB_PORT:3309}/ias_bank?sslMode=DISABLED&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    connection-timeout: 3s
+    publisher-confirm-type: simple
+
+iasbank:
+  rabbitmq:
+    exchange: iasbank.transfers
+    queue: iasbank.transfers.authorized
+    routing-key: transfer.authorized
+  events:
+    publication-interval-ms: 2000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.r2dbc: INFO
